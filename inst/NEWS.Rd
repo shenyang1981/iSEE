@@ -1,6 +1,24 @@
 \name{NEWS}
 \title{News for Package 'iSEE'}
 
+\section{iSEE VERSION 1.3.7}{
+\itemize{
+    \item Export \code{collapseBox} function.
+}
+}
+
+\section{iSEE VERSION 1.3.6}{
+\itemize{
+    \item Add input to control the size of data points.
+}
+}
+
+\section{iSEE VERSION 1.3.5}{
+\itemize{
+    \item Updated tour steps.
+}
+}
+
 \section{iSEE VERSION 1.3.4}{
 \itemize{
     \item Fix panel organization selectize.

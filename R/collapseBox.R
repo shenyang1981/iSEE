@@ -1,6 +1,6 @@
-#' A collapsible box
+#' A Collapsible Box
 #'
-#' A custom collapsible box with Shiny inputs upon collapse, more or less stolen from \pkg{shinyBS}.
+#' A custom collapsible box with Shiny inputs upon collapse, adapted from \pkg{shinyBS}.
 #'
 #' @param id String specifying the identifier for this object, to use as a field of the Shiny input.
 #' @param title String specifying the title of the box for use in the UI.
@@ -8,25 +8,23 @@
 #' @param open Logical scalar indicating whether this box should be open upon initialization.
 #' @param style String specifying the box style, defaults to \code{"default"}.
 #'
+#' @export
 #' @return A HTML tag object containing a collapsible box.
 #'
 #' @details
-#' Collapsible boxes are used to hold parameters, in the \dQuote{parameter boxes} described in \code{\link{.panel_generation}}.
+#' In \emph{iSEE} applications, collapsible boxes are used to hold parameters, in the \dQuote{parameter boxes} described in \code{\link{.panel_generation}}.
 #' Do not confuse them with the \code{shinydashboard::box}es, which are used to hold the plot and table panels.
 #' Adding to the confusion is the fact that the collapsible boxes are implemented in Javascript using the Bootstrap panel classes! 
 #'
 #' We would have preferred to use \code{bsCollapse} from \pkg{shinyBS}.
 #' However, that package does not seem to be under active maintenance, and there are several aspects that make it difficult to use.
 #' Specifically, it does not seem to behave well with conditional elements inside the box,
-#' and it also does needs a \code{Depends:} relationship with \pkg{shinyBS}.
+#' and it also imposes a \code{Depends:} relationship with \pkg{shinyBS}.
 #'
 #' For these reasons, we created our own collapsible box, taking code from \code{shinyBS} where appropriate.
 #' The underlying Javascript code for this object is present in \code{inst/www} and is attached to the search path for Shiny resources upon loading \pkg{iSEE}.
 #'
 #' @author Aaron Lun
-#' @rdname INTERNAL_collapseBox
-#' @seealso
-#' \code{\link{.panel_generation}}
 #'
 #' @importFrom shiny tagList tags singleton
 collapseBox <- function(id, title, ..., open = FALSE, style = NULL) {
