@@ -22,8 +22,10 @@
 #' \code{\link{.modify_table_links}},
 #' \code{\link{.destroy_table}}
 .spawn_table_links <- function(memory) {
-    all_linked_tabs <- c(sprintf("rowStatTable%i", seq_len(nrow(memory$rowStatTable))), 
-        sprintf("colStatTable%i", seq_len(nrow(memory$colStatTable))))
+    all_linked_tabs <- c(
+      sprintf("rowStatTable%i", seq_len(nrow(memory$rowStatTable))),
+      sprintf("customStatTable%i", seq_len(nrow(memory$rowStatTable))),
+      sprintf("colStatTable%i", seq_len(nrow(memory$colStatTable))))
     table_links <- rep(list(list(color=character(0), xaxis=character(0), yaxis=character(0))), length(all_linked_tabs))
     names(table_links) <- all_linked_tabs
 

@@ -55,6 +55,7 @@
 .customSubmit <- "Submit"
 .customColSource <- "ColumnSource"
 .customRowSource <- "RowSource"
+.customContainer <- "Container"
 
 # Heatmap plotting parameters. ----
 .heatMapAssay <- "Assay"

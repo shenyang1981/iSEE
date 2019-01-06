@@ -255,10 +255,16 @@
                 selectInput(
                     .input_FUN(.customFun), label="Custom function:",
                     choices=fun_choices, selected=param_choices[[.customFun]]),
-                textAreaInput(
-                    .input_FUN(.customVisibleArgs), label="Custom arguments:", rows=5,
-                    value=param_choices[[.customVisibleArgs]]),
-                actionButton(.input_FUN(.customSubmit), button_label)
+                fluidRow(column(12,  tags$b("Custom arguments:"))), 
+                splitLayout(
+                  cellWidths = c("60%", "40%"),
+                  textAreaInput(
+                    .input_FUN(.customVisibleArgs), label=NULL, rows=1,
+                    value=param_choices[[.customVisibleArgs]]
+                  ),
+                  actionButton(.input_FUN(.customSubmit), button_label)
+                ),
+                uiOutput(.input_FUN(.customContainer))
             )
         } else if (mode == "rowDataPlot") {
             obj <- plotOutput(panel_name, brush=brush.opts, dblclick=dblclick, click=clickopt, height=panel_height)
@@ -488,7 +494,7 @@
 .define_link_sources <- function(active_panels) {
     all_names <- .decode_panel_name(active_panels$Type, active_panels$ID)
     list(
-        row_tab=all_names[active_panels$Type == "rowStatTable"],
+        row_tab=all_names[active_panels$Type %in% c("rowStatTable", "customStatTable")],
         col_tab=all_names[active_panels$Type == "colStatTable"],
         row_plot=all_names[active_panels$Type %in% row_point_plot_types],
         col_plot=all_names[active_panels$Type %in% col_point_plot_types]
