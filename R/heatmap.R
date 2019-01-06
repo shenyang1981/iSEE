@@ -31,7 +31,7 @@
 #' @author Charlotte Soneson, Aaron Lun, Kevin Rue-Albrecht
 #' @rdname INTERNAL_make_heatMapPlot
 #'
-#' @importFrom ggplot2 scale_y_continuous geom_raster element_blank unit
+#' @importFrom ggplot2 scale_y_continuous geom_tile element_blank unit
 #' @importFrom cowplot get_legend plot_grid
 #' @importFrom reshape2 melt
 #' @importFrom dplyr arrange
@@ -138,7 +138,7 @@
     # heatmap coordinates from a brush on the final combined plot
     plot_cmds <- c(
         "p0 <- ggplot(plot.data, aes(x = X, y = Y)) +",
-        "geom_raster(aes(fill = value)) +",
+        "geom_tile(aes(fill = value)) +",
         "labs(x='', y='') +",
         .get_heatmap_fill_cmd(param_choices, colormap,
                               min(eval_env$plot.data$value, na.rm=TRUE),
@@ -162,7 +162,7 @@
 
         annot_cmds[[paste0("OrderBy", i)]] <- c("",
             sprintf("p%i <- ggplot(plot.data, aes(x = X, y = 1)) +", i) ,
-            sprintf("geom_raster(aes(fill = OrderBy%i%s)) +", i, alpha_cmd),
+            sprintf("geom_tile(aes(fill = OrderBy%i%s)) +", i, alpha_cmd),
             "labs(x='', y='') +",
             alpha_legend_cmd,
             sprintf("scale_y_continuous(breaks=1, labels='%s') +", orderBy[i]),
@@ -178,7 +178,7 @@
         i <- which(orderBy==select_as_field)
         annot_cmds[["SelectBy"]] <- c("",
             sprintf("p%i <- ggplot(plot.data, aes(x = X, y = 1)) +", i),
-            "geom_raster(aes(fill = SelectBy)) +",
+            "geom_tile(aes(fill = SelectBy)) +",
             "labs(x='', y='') +",
             "scale_y_continuous(breaks=1, labels='Selected points') +",
             sprintf("scale_fill_manual(values=c(`TRUE`='%s', `FALSE`='white')) +",param_choices[[.selectColor]]),
