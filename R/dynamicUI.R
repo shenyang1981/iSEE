@@ -379,7 +379,7 @@
 
         # Adding graphical parameters if we're plotting.
         if (mode %in% linked_table_types) {
-            if (mode %in% "rowStatTable") {
+            if (mode %in% c("rowStatTable", "customStatTable")) {
                 source_type <- "row"
                 selectable <- row_selectable
             } else  {

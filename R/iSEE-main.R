@@ -1526,7 +1526,8 @@ iSEE <- function(se,
                 })
             })
         }
-
+        
+       
         # Defining the custom tables.
         for (id in seq_len(nrow(pObjects$memory$customStatTable))) {
             local({
