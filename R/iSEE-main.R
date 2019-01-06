@@ -1396,13 +1396,21 @@ iSEE <- function(se,
         for (mode in custom_panel_types) {
             max_plots <- nrow(pObjects$memory[[mode]])
 
+            # copied from rowStatTable section
+            current_df <- feature_data
+            current_select_col <- feature_data_select_col
+            choices <- feature_choices
+            col_field <- .colorByFeatName
+            x_field <- .featAssayXAxisFeatName
+            y_field <- .featAssayYAxisFeatName
+            
             for (id in seq_len(max_plots)) {
                 # UI containing transmission information.
                 local({
                     id0 <- id
                     mode0 <- mode
                     panel_name <- paste0(mode0, id0)
-
+                    
                     link_field <- paste0(panel_name, "_", .panelLinkInfo)
                     output[[link_field]] <- renderUI({
                         force(rObjects[[link_field]])
@@ -1526,6 +1534,7 @@ iSEE <- function(se,
                 })
             })
         }
+
         
        
         # Defining the custom tables.
@@ -1533,36 +1542,98 @@ iSEE <- function(se,
             local({
                 id0 <- id
                 panel_name <- paste0("customStatTable", id0)
-
-                output[[panel_name]] <- renderDataTable({
+                
+                mode0 <- mode
+                current_df0 <- current_df
+                current_select_col0 <- current_select_col
+                
+                col_field0 <- col_field
+                x_field0 <- x_field
+                y_field0 <- y_field
+                choices0 <- choices
+                
+                # Update function specific UI
+                selectedFun <- paste0(panel_name, "_", .customFun);
+                
+                hasBeenIntiated <- list(); # only initiate custom UI + server logic once, in case multiple observeEvents might be generated       
+                pointsSelected <- reactiveValues(
+                  rows = NULL,
+                  columns = NULL
+                )
+                output[[paste0(panel_name, "_" , .customContainer)]] = renderUI(
+                  {
                     force(rObjects$active_panels) # to trigger recreation when the number of plots is changed.
                     force(rObjects[[panel_name]])
+                    
                     param_choices <- pObjects$memory$customStatTable[id0,]
-
+                    chosen <- param_choices[[.statTableSelected]]
                     row_selected <- .get_selected_points(rownames(se), param_choices[[.customRowSource]],
-                            pObjects$memory, pObjects$coordinates)
+                                                         pObjects$memory, pObjects$coordinates)
                     if (!is.null(row_selected)) {
-                        row_selected <- rownames(se)[row_selected]
+                      row_selected <- rownames(se)[row_selected]
                     }
-
+                    
                     col_selected <- .get_selected_points(colnames(se), param_choices[[.customColSource]],
-                            pObjects$memory, pObjects$coordinates)
+                                                         pObjects$memory, pObjects$coordinates)
                     if (!is.null(col_selected)) {
-                        col_selected <- colnames(se)[col_selected]
+                      col_selected <- colnames(se)[col_selected]
                     }
-
+                    
                     chosen_fun <- param_choices[[.customFun]]
-                    if (chosen_fun==.noSelection) {
-                        return(NULL)
+                    if (chosen_fun == .noSelection) {
+                      return(NULL)
                     }
+                    
+                    # register custom function (with its UI) to be initiated
+                    FUN <- input[[selectedFun]]
+                    FUNID <- paste0(panel_name, "_", FUN)
+                    onlyUI <- !is.null(hasBeenIntiated[[FUNID]]);
+                    hasBeenIntiated[[FUNID]] <<- 1;
+                    
+                    CONTAINER_FUN <- .get_internal_info(se, "custom_stat_fun")[[FUN]]$UI
+                    
+                    # initiate container by updating function specific UI in custom container slot defined in custom UI panel
+                    # the way of updating datatable slot would be defined in custom container function
+                    pointsSelected$rows = row_selected
+                    pointsSelected$columns = col_selected
+                    
+                    
+                    do.call(
+                      CONTAINER_FUN,
+                      c(list(se, pointsSelected, session, input, output, panel_name, FUN, UIonly = onlyUI))
+                    )
+                  }
+                )
+              
+                # Updating memory for new selection parameters (no need for underscore
+                # in 'select_field' definition, as this is already in the '.int' constant).
+                select_field <- paste0(panel_name, .int_statTableSelected)
+                observe({
+                  chosen <- input[[select_field]]
+                  if (length(chosen)==0L) {
+                    return(NULL)
+                  }
+                  pObjects$memory$customStatTable[id0, .statTableSelected] <- chosen
+                  
+                  col_kids <- pObjects$table_links[[panel_name]][["color"]]
+                  x_kids <- pObjects$table_links[[panel_name]][["xaxis"]]
+                  y_kids <- pObjects$table_links[[panel_name]][["yaxis"]]
 
-                    chosen_args <- param_choices[[.customArgs]]
-                    FUN <- .get_internal_info(se, "custom_stat_fun")[[chosen_fun]]
-                    tmp_df <- do.call(FUN, c(list(se, row_selected, col_selected), as.list(.text2args(chosen_args))))
-
-                    search <- param_choices[[.customStatSearch]]
-                    datatable(tmp_df, filter="top", rownames=TRUE,
-                        options=list(search=list(search=search, smart=FALSE, regex=TRUE, caseInsensitive=FALSE), scrollX=TRUE))
+                  # Updating the selectize for the color choice.
+                  col_kids <- sprintf("%s_%s", col_kids, col_field0)
+                  for (kid in col_kids) {
+                    updateSelectizeInput(session, kid, label=NULL, server=TRUE, selected=chosen, choices=choices0)
+                  }
+                  
+                  # Updating the selectize for the x-/y-axis choices.
+                  x_kids <- sprintf("%s_%s", x_kids, x_field0)
+                  for (kid in x_kids) {
+                    updateSelectizeInput(session, kid, label=NULL, server=TRUE, selected=chosen, choices=choices0)
+                  }
+                  y_kids <- sprintf("%s_%s", y_kids, y_field0)
+                  for (kid in y_kids) {
+                    updateSelectizeInput(session, kid, label=NULL, server=TRUE, selected=chosen, choices=choices0)
+                  }
                 })
 
                 # Updating memory for new selection parameters.
@@ -1969,7 +2040,7 @@ iSEE <- function(se,
                     enc <- .encode_panel_name(origin)
 
                     incoming <- NULL
-                    if (enc$Type == "rowStatTable") {
+                    if (enc$Type %in% c("rowStatTable", "customStatTable")) {
                         incoming <- input[[paste0(enc$Type, enc$ID, "_rows_all")]]
                     } else {
                         selected <- .get_selected_points(rownames(se), origin, pObjects$memory, pObjects$coordinates)
