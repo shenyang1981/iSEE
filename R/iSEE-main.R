@@ -1538,6 +1538,8 @@ iSEE <- function(se,
         
        
         # Defining the custom tables.
+        pointsSelected <- list(); # reactiveValue of points selected for every custom panel
+        
         for (id in seq_len(nrow(pObjects$memory$customStatTable))) {
             local({
                 id0 <- id
@@ -1556,7 +1558,8 @@ iSEE <- function(se,
                 selectedFun <- paste0(panel_name, "_", .customFun);
                 
                 hasBeenIntiated <- list(); # only initiate custom UI + server logic once, in case multiple observeEvents might be generated       
-                pointsSelected <- reactiveValues(
+                
+                pointsSelected[[panel_name]] <- reactiveValues(
                   rows = NULL,
                   columns = NULL
                 )
@@ -1591,16 +1594,17 @@ iSEE <- function(se,
                     hasBeenIntiated[[FUNID]] <<- 1;
                     
                     CONTAINER_FUN <- .get_internal_info(se, "custom_stat_fun")[[FUN]]$UI
-                    
+                    COMPUTATION_FUN <- .get_internal_info(se, "custom_stat_fun")[[FUN]]$computation
+                    CACHES_ENV <- .get_internal_info(se, "custom_stat_fun")[[FUN]]$caches
                     # initiate container by updating function specific UI in custom container slot defined in custom UI panel
                     # the way of updating datatable slot would be defined in custom container function
-                    pointsSelected$rows = row_selected
-                    pointsSelected$columns = col_selected
+                    pointsSelected[[panel_name]]$rows = row_selected
+                    pointsSelected[[panel_name]]$columns = col_selected
                     
                     
                     do.call(
                       CONTAINER_FUN,
-                      c(list(se, pointsSelected, session, input, output, panel_name, FUN, UIonly = onlyUI))
+                      c(list(se, pointsSelected[[panel_name]], session, input, output, panel_name, FUN, COMPUTATION_FUN, CACHES_ENV, UIonly = onlyUI))
                     )
                   }
                 )
