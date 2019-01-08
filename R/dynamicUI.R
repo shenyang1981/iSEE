@@ -233,15 +233,30 @@
                         choices=tab_by_row, selected=param_choices[[.featAssayXAxisRowTable]]))
             )
         } else if (mode == "rowStatTable") {
-            obj <- tagList(dataTableOutput(panel_name), uiOutput(.input_FUN("annotation")))
+            obj <- tagList(
+              dataTableOutput(panel_name), 
+              shinyjs::hidden(
+                downloadButton(.input_FUN("download"), "Download")  
+              ),
+              uiOutput(.input_FUN("annotation")))
         } else if (mode == "colStatTable") {
-            obj <- dataTableOutput(panel_name)
+            obj <- tagList(
+              dataTableOutput(panel_name),
+              shinyjs::hidden(
+                downloadButton(.input_FUN("download"), "Download")  
+              )
+            )
         } else if (mode == "customStatTable" || mode == "customDataPlot") {
             if (mode == "customDataPlot") {
                 obj <- plotOutput(panel_name, height=panel_height)
                 fun_choices <- custom_data_funnames
             } else {
-                obj <- dataTableOutput(panel_name)
+                obj <- tagList(
+                  dataTableOutput(panel_name),
+                  shinyjs::hidden(
+                    downloadButton(.input_FUN("download"), "Download")  
+                  )
+                )
                 fun_choices <- custom_stat_funnames
             }
             argsUpToDate <- param_choices[[.customArgs]] == param_choices[[.customVisibleArgs]]

@@ -1539,7 +1539,7 @@ iSEE <- function(se,
        
         # Defining the custom tables.
         pointsSelected <- list(); # reactiveValue of points selected for every custom panel
-        
+        hasBeenIntiated <- list(); # only initiate custom UI + server logic once, in case multiple observeEvents might be generated
         for (id in seq_len(nrow(pObjects$memory$customStatTable))) {
             local({
                 id0 <- id
@@ -1556,8 +1556,6 @@ iSEE <- function(se,
                 
                 # Update function specific UI
                 selectedFun <- paste0(panel_name, "_", .customFun);
-                
-                hasBeenIntiated <- list(); # only initiate custom UI + server logic once, in case multiple observeEvents might be generated       
                 
                 pointsSelected[[panel_name]] <- reactiveValues(
                   rows = NULL,
@@ -1707,7 +1705,9 @@ iSEE <- function(se,
                         selected <- .get_selected_points(rownames(current_df0), param_choices[[.selectByPlot]], pObjects$memory, pObjects$coordinates)
                         tmp_df <- current_df0
                         columnDefs <- list()
+                        downloadDF <- NULL
                         if (!is.null(selected)) {
+                            downloadDF = tmp_df[selected, ]
                             tmp_df[[current_select_col0]] <- selected
                             if (length(search_col)!=ncol(tmp_df)) {
                                 search_col <- c(search_col, list(list(search="[\"true\"]"))) # brackets appears to fix row indexing in RStudio browser (1/2)
@@ -1717,6 +1717,20 @@ iSEE <- function(se,
                             columnDefs <- append(columnDefs, list(list(visible=FALSE, targets=length(search_col)))) # this line must stay below the if block
                         } else {
                             search_col <- search_col[seq_len(ncol(tmp_df))]
+                            downloadDF = tmp_df
+                        }
+                        
+                        # Updating the download link
+                        download_field  <- paste0(panel_name, "_download")
+                        if (any(dim(downloadDF)[1]>0, !is.null(downloadDF))) {
+                          shinyjs::show(download_field)
+                          output[[download_field]] = downloadHandler(
+                            filename = paste0(download_field, ".txt"),
+                            content = function(f){
+                              write.table(downloadDF, f, col.names = T, row.names = T, sep = "\t", quote = F);                            }
+                          )  
+                        } else {
+                          shinyjs::hide(download_field)
                         }
 
                         datatable(
@@ -1763,14 +1777,6 @@ iSEE <- function(se,
                         # But this would imply that you're plotting/colouring the same gene against itself, which would be stupid.
                     })
 
-                    # Updating memory for new selection parameters.
-                    search_field <- paste0(panel_name, .int_statTableSearch)
-                    observe({
-                        search <- input[[search_field]]
-                        if (length(search)) {
-                            pObjects$memory[[mode0]][id0, .statTableSearch] <- search
-                        }
-                    })
 
                     colsearch_field <- paste0(panel_name, .int_statTableColSearch)
                     observe({
