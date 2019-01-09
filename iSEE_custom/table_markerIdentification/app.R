@@ -78,4 +78,4 @@ app <- iSEE(
 
 # launch the app itself ----
 
-runApp(app)
+app
