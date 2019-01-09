@@ -2,7 +2,7 @@ To run this example, the following packages need to be installed:
 BiocManager::install("scRNAseq", version = "3.8")
 BiocManager::install("scater", version = "3.8")
 devtools::install_github(repo = "drisso/SingleCellExperiment", ref = "aa3c65f")
-devtools::install_github(repo = "shenyang1981/iSEE", ref = "enhancedCustomPanel")
 devtools::install_github(repo = 'satijalab/seurat', ref = 'release/3.0')
 devtools::install_github(repo = 'RGLab/MAST')
-BiocManager::valid()
+BiocManager::valid() # in case packages are out of date
+devtools::install_github(repo = "shenyang1981/iSEE", ref = "enhancedCustomPanel")
