@@ -4,6 +4,7 @@ stopifnot(suppressPackageStartupMessages({
   require(Seurat)
   require(scater)
   require(shiny)
+  require(shinyjs)
 }))
 
 data(allen)
@@ -65,6 +66,8 @@ featAssay$YAxisRowTable <- "Custom statistics table 1"
 initialPanels <- DataFrame(
   Name=c("Reduced dimension plot 1", "Custom statistics table 1", "Feature assay plot 1"),
   Width=c(4L, 4L, 4L))
+
+useShinyjs()
 
 app <- iSEE(
   se = sce,
