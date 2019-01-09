@@ -1,0 +1,8 @@
+To run this example, the following packages need to be installed:
+
+BiocManager::install("SingleCellExperiment", version = "3.8")
+BiocManager::install("scRNAseq", version = "3.8")
+BiocManager::install("scater", version = "3.8")
+devtools::install_github(repo = "shenyang1981/iSEE", ref = "enhancedCustomPanel")
+devtools::install_github(repo = 'satijalab/seurat', ref = 'release/3.0')
+devtools::install_github(repo = 'RGLab/MAST')
