@@ -54,7 +54,6 @@ featAssay$Assay <- "logcounts"
 
 # Setting up links between plots. -----------------------------------------
 
-redDim$ColorByRowTable <- "Custom statistics table 1"
 customStatArgs$SelectByPlot <- "Reduced dimension plot 1"
 customStatArgs$ColumnSource <- "Reduced dimension plot 1"
 featAssay$YAxisRowTable <- "Custom statistics table 1"
