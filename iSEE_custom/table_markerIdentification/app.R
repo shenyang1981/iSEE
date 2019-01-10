@@ -80,5 +80,8 @@ app <- iSEE(
   appTitle = "Custom table panel: Running FindMarker on the fly")
 
 # launch the app itself ----
+runApp(app)
 
-app
+
+# launch via shiny-server -------------------------------------------------
+# app
