@@ -1,3 +1,4 @@
+context("ExperimentColorMap")
 
 # Validity method ----
 
@@ -15,7 +16,7 @@ test_that("validity method catches colormaps that are not functions", {
     # use `new` to bypass
     ecm <- ExperimentColorMap()
 
-    ecm@assays <- list(dummy1 = 1)
+    ecm@assays <- list(dummy1=1)
     msg <- iSEE:::.valid.Colormap(ecm)
 
     expect_match(msg, "Colormap `dummy1` in slot `assays` is not a function")
@@ -40,8 +41,8 @@ test_that("validity method catches colormaps with controlled names", {
     ecm <- ExperimentColorMap()
 
     ecm@all_discrete <- list(
-        wrong = function(x){NULL},
-        again = function(){NULL})
+        wrong=function(x){NULL},
+        again=function(){NULL})
     msg <- iSEE:::.valid.Colormap(ecm)
 
     expect_match(
@@ -51,23 +52,22 @@ test_that("validity method catches colormaps with controlled names", {
 
 })
 
-
 # Constructors ----
 
 test_that("Constructor produce a valid object",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS,
-            tophat_counts = COUNT_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            rsem_tpm = TPM_COLORS
+        assays=list(
+            counts=COUNT_COLORS,
+            tophat_counts=COUNT_COLORS,
+            cufflinks_fpkm=FPKM_COLORS,
+            cufflinks_fpkm=FPKM_COLORS,
+            rsem_tpm=TPM_COLORS
         ),
-        colData = list(
-            passes_qc_checks_s = QC_COLOR_FUN
+        colData=list(
+            passes_qc_checks_s=QC_COLOR_FUN
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     expect_s4_class(
@@ -81,9 +81,9 @@ test_that("Constructor catches unnamed colormaps",{
 
     expect_error(
         ExperimentColorMap(
-            colData = list(function(x) {NULL}),
-            rowData = list(function(x) {NULL}),
-            all_discrete = list( function(x) {NULL} )
+            colData=list(function(x) {NULL}),
+            rowData=list(function(x) {NULL}),
+            all_discrete=list( function(x) {NULL} )
             ),
         "User-defined colormap must be a named list",
         fixed=TRUE
@@ -96,18 +96,18 @@ test_that("Constructor catches unnamed colormaps",{
 test_that("show method displays expected content",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS,
-            tophat_counts = COUNT_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            rsem_tpm = TPM_COLORS
+        assays=list(
+            counts=COUNT_COLORS,
+            tophat_counts=COUNT_COLORS,
+            cufflinks_fpkm=FPKM_COLORS,
+            cufflinks_fpkm=FPKM_COLORS,
+            rsem_tpm=TPM_COLORS
         ),
-        colData = list(
-            passes_qc_checks_s = QC_COLOR_FUN
+        colData=list(
+            passes_qc_checks_s=QC_COLOR_FUN
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS,
-        global_discrete = iSEE:::.defaultDiscreteColorMap
+        global_continuous=ASSAY_CONTINUOUS_COLORS,
+        global_discrete=iSEE:::.defaultDiscreteColorMap
     )
 
     expect_null(show(ecm))
@@ -121,10 +121,10 @@ test_that("show method displays expected content",{
 test_that("assays returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     expect_identical(
@@ -137,10 +137,10 @@ test_that("assays returns appropriate values",{
 test_that("assays<- sets appropriate values",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     new_value <- list()
@@ -158,8 +158,8 @@ test_that("assays<- sets appropriate values",{
 test_that("colData returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        colData = list(
-            passes_qc_checks_s = QC_COLOR_FUN
+        colData=list(
+            passes_qc_checks_s=QC_COLOR_FUN
         )
     )
 
@@ -173,8 +173,8 @@ test_that("colData returns appropriate values",{
 test_that("colData<- sets appropriate values",{
 
     ecm <- ExperimentColorMap(
-        colData = list(
-            passes_qc_checks_s = QC_COLOR_FUN
+        colData=list(
+            passes_qc_checks_s=QC_COLOR_FUN
         )
     )
 
@@ -195,8 +195,8 @@ test_that("colData<- sets appropriate values",{
 test_that("rowData returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        rowData = list(
-            passes_qc_checks_s = QC_COLOR_FUN
+        rowData=list(
+            passes_qc_checks_s=QC_COLOR_FUN
         )
     )
 
@@ -216,13 +216,13 @@ test_that("rowData<- sets appropriate values",{
     }
 
     ecm <- ExperimentColorMap(
-        rowData = list(
-            is_MT = logical_colormap
+        rowData=list(
+            is_MT=logical_colormap
         )
     )
 
     new_value <- list(
-        new_rowData = function(n){return("blue")}
+        new_rowData=function(n){return("blue")}
     )
     rowData(ecm) <- new_value
 
@@ -238,10 +238,10 @@ test_that("rowData<- sets appropriate values",{
 test_that("assay returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     # character
@@ -261,10 +261,10 @@ test_that("assay returns appropriate values",{
 test_that("assay<- sets appropriate values with character indexing",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     new_value <- function(n){return("red")}
@@ -283,10 +283,10 @@ test_that("assay<- sets appropriate values with character indexing",{
 test_that("assayNames returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     # character
@@ -300,10 +300,10 @@ test_that("assayNames returns appropriate values",{
 test_that("assayNames<- sets appropriate values",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     new_value <- "logcounts"
@@ -317,10 +317,10 @@ test_that("assayNames<- sets appropriate values",{
 test_that("assay<- sets appropriate values with numeric indexing",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     new_value <- function(n){return("red")}
@@ -339,10 +339,10 @@ test_that("assay<- sets appropriate values with numeric indexing",{
 test_that("assayColorMap returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     # specific
@@ -353,7 +353,7 @@ test_that("assayColorMap returns appropriate values",{
 
     # specific > (continuous) all > global
     expect_equal(
-        assayColorMap(ecm, "undefined", discrete = FALSE)(21L),
+        assayColorMap(ecm, "undefined", discrete=FALSE)(21L),
         ASSAY_CONTINUOUS_COLORS(21L)
     )
 
@@ -362,7 +362,7 @@ test_that("assayColorMap returns appropriate values",{
 test_that(".assayAllColorMap returns the appropriate values", {
 
     # Non-NULL
-    ecm <- ExperimentColorMap(all_discrete = list(
+    ecm <- ExperimentColorMap(all_discrete=list(
         assays=COUNT_COLORS
     ))
 
@@ -374,10 +374,10 @@ test_that(".assayAllColorMap returns the appropriate values", {
 test_that("assay<- sets appropriate values with character indexing",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     new_value <- function(n){return("red")}
@@ -394,10 +394,10 @@ test_that("assay<- sets appropriate values with character indexing",{
 test_that("assayColorMap<- sets appropriate values with character indexing",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     new_value <- function(n){return("red")}
@@ -414,10 +414,10 @@ test_that("assayColorMap<- sets appropriate values with character indexing",{
 test_that("assay<- sets appropriate values with numeric indexing",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     new_value <- function(n){return("red")}
@@ -434,10 +434,10 @@ test_that("assay<- sets appropriate values with numeric indexing",{
 test_that("assayColorMap<- sets appropriate values with numeric indexing",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     new_value <- function(n){return("red")}
@@ -456,21 +456,21 @@ test_that("assayColorMap<- sets appropriate values with numeric indexing",{
 test_that("colDataColorMap returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     # specific > (discrete) all > global > .defaultDiscreteColorMap
     expect_identical(
-        colDataColorMap(ecm, "test", discrete = TRUE)(21L),
+        colDataColorMap(ecm, "test", discrete=TRUE)(21L),
         .defaultDiscreteColorMap(21L)
     )
 
     # specific > (continuous) all > global
     expect_identical(
-        colDataColorMap(ecm, "test", discrete = FALSE)(21L),
+        colDataColorMap(ecm, "test", discrete=FALSE)(21L),
         ASSAY_CONTINUOUS_COLORS(21L)
     )
 
@@ -479,12 +479,12 @@ test_that("colDataColorMap returns appropriate values",{
 test_that(".colDataAllColorMap returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        all_continuous = list(colData=QC_COLOR_FUN)
+        all_continuous=list(colData=QC_COLOR_FUN)
     )
 
     # specific > (continuous) all > global
     expect_identical(
-        colDataColorMap(ecm, "test", discrete = FALSE),
+        colDataColorMap(ecm, "test", discrete=FALSE),
         QC_COLOR_FUN
     )
 
@@ -493,8 +493,8 @@ test_that(".colDataAllColorMap returns appropriate values",{
 test_that("colDataColorMap<- sets appropriate values with character indexing",{
 
     ecm <- ExperimentColorMap(
-        colData = list(
-            passes_qc_checks_s = QC_COLOR_FUN
+        colData=list(
+            passes_qc_checks_s=QC_COLOR_FUN
         )
     )
 
@@ -514,21 +514,21 @@ test_that("colDataColorMap<- sets appropriate values with character indexing",{
 test_that("rowDataColorMap returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
     # specific > (discrete) all > global > .defaultDiscreteColorMap
     expect_identical(
-        rowDataColorMap(ecm, "test", discrete = TRUE)(21L),
+        rowDataColorMap(ecm, "test", discrete=TRUE)(21L),
         .defaultDiscreteColorMap(21L)
     )
 
     # specific > (continuous) all > global
     expect_identical(
-        rowDataColorMap(ecm, "test", discrete = FALSE)(21L),
+        rowDataColorMap(ecm, "test", discrete=FALSE)(21L),
         ASSAY_CONTINUOUS_COLORS(21L)
     )
 
@@ -537,12 +537,12 @@ test_that("rowDataColorMap returns appropriate values",{
 test_that("rowDataColorMap returns appropriate values",{
 
     ecm <- ExperimentColorMap(
-        all_continuous = list(rowData=QC_COLOR_FUN)
+        all_continuous=list(rowData=QC_COLOR_FUN)
     )
 
    # specific > (continuous) all > global
     expect_identical(
-        rowDataColorMap(ecm, "test", discrete = FALSE),
+        rowDataColorMap(ecm, "test", discrete=FALSE),
         QC_COLOR_FUN
     )
 
@@ -551,8 +551,8 @@ test_that("rowDataColorMap returns appropriate values",{
 test_that("rowDataColorMap<- sets appropriate values with character indexing",{
 
     ecm <- ExperimentColorMap(
-        rowData = list(
-            passes_qc_checks_s = QC_COLOR_FUN
+        rowData=list(
+            passes_qc_checks_s=QC_COLOR_FUN
         )
     )
 
@@ -573,17 +573,17 @@ test_that("Invalid objects are not allowed to be created", {
 
     # colormaps must be functions
     expect_error(
-        ExperimentColorMap(assays = list(dummy1 = 'a')),
+        ExperimentColorMap(assays=list(dummy1='a')),
         "not a function",
         fixed=TRUE
     )
     expect_error(
-        ExperimentColorMap(colData = list(dummy2 = NULL)),
+        ExperimentColorMap(colData=list(dummy2=NULL)),
         "not a function",
         fixed=TRUE
     )
     expect_error(
-        ExperimentColorMap(rowData = list(dummy2 = NULL)),
+        ExperimentColorMap(rowData=list(dummy2=NULL)),
         "not a function",
         fixed=TRUE
     )
@@ -591,8 +591,8 @@ test_that("Invalid objects are not allowed to be created", {
     # colData and rowData colormaps must be named
     expect_error(
         ExperimentColorMap(
-            colData = list(
-                dummy1 = function(x){NULL},
+            colData=list(
+                dummy1=function(x){NULL},
                 function(x){NULL} # unnamed
             )
         ),
@@ -601,8 +601,8 @@ test_that("Invalid objects are not allowed to be created", {
     )
     expect_error(
         ExperimentColorMap(
-            rowData = list(
-                dummy1 = function(x){NULL},
+            rowData=list(
+                dummy1=function(x){NULL},
                 function(x){NULL} # unnamed
             )
         ),
@@ -613,125 +613,108 @@ test_that("Invalid objects are not allowed to be created", {
     # all_* slots have specific names
     expect_error(
         ExperimentColorMap(
-            all_discrete = list(a = function(x){NULL}),
-            all_continuous = list(assays = NULL, b = NULL, rowData = NULL)
+            all_discrete=list(a=function(x){NULL}),
+            all_continuous=list(assays=NULL, b=NULL, rowData=NULL)
         )
     )
 
 })
 
-# isColorMapCompatible (many assays) ----
+# checkColormapCompatibility (many assays) ----
 
-test_that("isColorMapCompatible catches too many assays colormaps", {
+test_that("checkColormapCompatibility catches too many assays colormaps", {
 
     ecm_manyAssays <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS,
-            tophat_counts = COUNT_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            rsem_tpm = TPM_COLORS,
-            another = TPM_COLORS,
-            yet_another = TPM_COLORS,
-            last_one_i_promise = TPM_COLORS,
-            oh_well = TPM_COLORS
+        assays=list(
+            counts=COUNT_COLORS,
+            tophat_counts=COUNT_COLORS,
+            cufflinks_fpkm=FPKM_COLORS,
+            cufflinks_fpkm=FPKM_COLORS,
+            rsem_tpm=TPM_COLORS,
+            another=TPM_COLORS,
+            yet_another=TPM_COLORS,
+            last_one_i_promise=TPM_COLORS,
+            oh_well=TPM_COLORS
         )
     )
 
-    expect_error(
-        iSEE:::isColorMapCompatible(ecm_manyAssays, sce, error = TRUE),
-        "More assays in colormap",
-        fixed=TRUE
-    )
+    out <- checkColormapCompatibility(ecm_manyAssays, sce)
+
     expect_identical(
-        iSEE:::isColorMapCompatible(ecm_manyAssays, sce, error = FALSE),
-        FALSE
+        checkColormapCompatibility(ecm_manyAssays, sce),
+        c(
+            "More assays in colormap (9) than experiment (2)",
+            "assay `counts` in colormap missing in experiment",
+            "assay `cufflinks_fpkm` in colormap missing in experiment",
+            "assay `cufflinks_fpkm` in colormap missing in experiment",
+            "assay `rsem_tpm` in colormap missing in experiment",
+            "assay `another` in colormap missing in experiment",
+            "assay `yet_another` in colormap missing in experiment",
+            "assay `last_one_i_promise` in colormap missing in experiment",
+            "assay `oh_well` in colormap missing in experiment")
     )
 
 })
 
-# isColorMapCompatible (superfluous assays) ----
+# checkColormapCompatibility (superfluous assays) ----
 
-test_that("isColorMapCompatible catches superfluous assays colormap", {
+test_that("checkColormapCompatibility catches superfluous assays colormap", {
 
     nullECM <- ExperimentColorMap(
-        assays = list(
-            dummy1 = function(x){NULL}
+        assays=list(
+            dummy1=function(x){NULL}
         )
     )
 
-    expect_error(
-        iSEE:::isColorMapCompatible(nullECM, sce, error = TRUE),
-        "assay `dummy1` in colormap missing in experiment",
-        fixed=TRUE
-    )
-    expect_identical(
-        iSEE:::isColorMapCompatible(nullECM, sce, error = FALSE),
-        FALSE
-    )
+    out <- checkColormapCompatibility(nullECM, sce)
+    expect_identical(out, "assay `dummy1` in colormap missing in experiment")
 
 })
 
-# isColorMapCompatible (superfluous colData) ----
+# checkColormapCompatibility (superfluous colData) ----
 
-test_that("isColorMapCompatible catches superfluous colData colormap", {
+test_that("checkColormapCompatibility catches superfluous colData colormap", {
 
     missingColData <- ExperimentColorMap(
-        colData = list(
-            dummy2 = function(x){NULL}
+        colData=list(
+            dummy2=function(x){NULL}
         )
     )
 
-    expect_error(
-        iSEE:::isColorMapCompatible(missingColData, sce, error = TRUE),
-        "colData `dummy2` in colormap missing in experiment",
-        fixed=TRUE
-    )
-    expect_identical(
-        iSEE:::isColorMapCompatible(missingColData, sce, error = FALSE),
-        FALSE
-    )
+    out <- checkColormapCompatibility(missingColData, sce)
+    expect_identical(out, "colData `dummy2` in colormap missing in experiment")
 
 })
 
-# isColorMapCompatible (superfluous rowData) ----
+# checkColormapCompatibility (superfluous rowData) ----
 
 
-test_that("isColorMapCompatible catches superfluous rowData colormap", {
+test_that("checkColormapCompatibility catches superfluous rowData colormap", {
 
     missingRowData <- ExperimentColorMap(
-        rowData = list(
-            dummy2 = function(x){NULL}
+        rowData=list(
+            dummy2=function(x){NULL}
         )
     )
 
-    expect_error(
-        iSEE:::isColorMapCompatible(missingRowData, sce, error = TRUE),
-        "rowData `dummy2` in colormap missing in experiment",
-        fixed=TRUE
-    )
-    expect_identical(
-        iSEE:::isColorMapCompatible(missingRowData, sce, error = FALSE),
-        FALSE
-    )
+    out <- checkColormapCompatibility(missingRowData, sce)
+    expect_identical(out, "rowData `dummy2` in colormap missing in experiment")
 
 })
 
-# isColorMapCompatible (valid) ----
+# checkColormapCompatibility (valid) ----
 
-test_that("isColorMapCompatible accepts compatible colormap", {
+test_that("checkColormapCompatibility accepts compatible colormap", {
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS
+        assays=list(
+            tophat_counts=COUNT_COLORS
         ),
-        global_continuous = ASSAY_CONTINUOUS_COLORS
+        global_continuous=ASSAY_CONTINUOUS_COLORS
     )
 
-    expect_identical(
-        iSEE:::isColorMapCompatible(ecm, sce, error = FALSE),
-        TRUE
-    )
+    out <- checkColormapCompatibility(ecm, sce)
+    expect_null(out)
 
 })
 
@@ -740,26 +723,22 @@ test_that("isColorMapCompatible accepts compatible colormap", {
 test_that("synchronizeAssays works for fully named assays", {
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS,
-            tophat_counts = COUNT_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            rsem_tpm = FPKM_COLORS,
-            orphan = COUNT_COLORS,
-            orphan2 = COUNT_COLORS,
+        assays=list(
+            counts=COUNT_COLORS,
+            tophat_counts=COUNT_COLORS,
+            cufflinks_fpkm=FPKM_COLORS,
+            rsem_tpm=FPKM_COLORS,
+            orphan=COUNT_COLORS,
+            orphan2=COUNT_COLORS,
             COUNT_COLORS,
             TPM_COLORS
         )
     )
 
     ecm_expected <- ExperimentColorMap(
-        assays = list(
-            tophat_counts = COUNT_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            rsem_counts = iSEE:::.defaultContinuousColorMap,
-            rsem_tpm = FPKM_COLORS,
-            counts = COUNT_COLORS,
-            logcounts = iSEE:::.defaultContinuousColorMap
+        assays=list(
+            tophat_counts=COUNT_COLORS,
+            logcounts=iSEE:::.defaultContinuousColorMap
         )
     )
 
@@ -790,10 +769,10 @@ test_that("synchronizeAssays requires same number of unnamed assays", {
 
     # Different number of un/named colormap
     ecm_unmatched <- ExperimentColorMap(
-        assays = list(
+        assays=list(
             COUNT_COLORS,
-            test = COUNT_COLORS,
-            FPKM_COLORS
+            test=COUNT_COLORS,
+            test2=COUNT_COLORS
         )
     )
 
@@ -813,13 +792,9 @@ test_that("synchronizeAssays works for fully _un_named assays", {
 
     # same number of un/named colormaps
     ecm_matched <- ExperimentColorMap(
-        assays = list(
+        assays=list(
             COUNT_COLORS,
-            COUNT_COLORS,
-            FPKM_COLORS,
-            FPKM_COLORS,
-            COUNT_COLORS,
-            COUNT_COLORS
+            FPKM_COLORS
         )
     )
 
@@ -842,17 +817,17 @@ test_that("synchronizeAssays works for fully _un_named assays", {
 
 test_that("synchronizeAssays works for partially named assays", {
 
-    sce_some_names <- sce
-    assayNames(sce_some_names)[1:3] <- ""
+    sce_some_names <- sce # tophat_counts, logcounts [1, 2]
+    counts(sce_some_names) <- assay(sce_some_names, "tophat_counts") # counts [3]
+    assayNames(sce_some_names)[3] <- ""
 
     ecm <- ExperimentColorMap(
-        assays = list(
-            counts = COUNT_COLORS,
-            tophat_counts = COUNT_COLORS,
-            cufflinks_fpkm = FPKM_COLORS,
-            rsem_tpm = FPKM_COLORS, # missing colormap
-            orphan = COUNT_COLORS,
-            orphan2 = COUNT_COLORS,
+        assays=list(
+            tophat_counts=COUNT_COLORS,
+            cufflinks_fpkm=FPKM_COLORS, # missing colormap
+            rsem_tpm=FPKM_COLORS, # missing colormap
+            orphan=COUNT_COLORS, # missing colormap
+            orphan2=COUNT_COLORS, # missing colormap
             COUNT_COLORS,
             TPM_COLORS
         )
@@ -861,20 +836,17 @@ test_that("synchronizeAssays works for partially named assays", {
     ecm_sync <- synchronizeAssays(ecm, sce_some_names)
 
     ecm_expected <- ExperimentColorMap(
-        assays = list(
-            iSEE:::.defaultContinuousColorMap,
-            iSEE:::.defaultContinuousColorMap,
-            iSEE:::.defaultContinuousColorMap,
-            rsem_tpm = FPKM_COLORS,
-            counts = COUNT_COLORS,
-            logcounts = iSEE:::.defaultContinuousColorMap
+        assays=list(
+            tophat_counts=COUNT_COLORS,
+            logcounts=iSEE:::.defaultContinuousColorMap,
+            iSEE:::.defaultContinuousColorMap
         )
     )
 
     # Expect:
-    # - unnamed assays to be assigned default continuous colormap
-    # - named assays matched to have the appropriate colormap
-    # - named assays unmatched to have the default continuous colormap
+    # - named assays matched to have the appropriate colormap (tophat_counts)
+    # - named assays unmatched to have the default continuous colormap (logcounts)
+    # - unnamed assays to be assigned default continuous colormap (3rd assay)
     expect_identical(
         ecm_sync,
         ecm_expected
@@ -887,4 +859,3 @@ test_that("synchronizeAssays works for partially named assays", {
     )
 
 })
-

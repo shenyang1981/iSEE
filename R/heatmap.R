@@ -54,7 +54,8 @@
     data_cmds <- .add_command(data_cmds, c(
       sprintf("value.mat <- as.matrix(assay(se, %i)[%s, , drop=FALSE]);",
               assay_choice, paste(deparse(genes_selected_y), collapse="\n")),
-      "plot.data <- reshape2::melt(value.mat, varnames = c('Y', 'X'));"
+      "plot.data <- reshape2::melt(value.mat, varnames=c('Y', 'X'));",
+      "plot.data$Y <- factor(plot.data$Y, rev(rownames(value.mat)))"
     ))
 
     # Arrange cells according to the selected colData columns
@@ -75,8 +76,8 @@
             }
         }, FUN.VALUE=character(1)),
         sprintf("plot.data <- dplyr::arrange(plot.data, %s);",
-                paste0("OrderBy", seq_along(orderBy), collapse = ",")),
-        "plot.data$X <- factor(plot.data$X, levels = unique(plot.data$X));"
+                paste0("OrderBy", seq_along(orderBy), collapse=",")),
+        "plot.data$X <- factor(plot.data$X, levels=unique(plot.data$X));"
     ))
 
     data_cmds <- .evaluate_commands(data_cmds, eval_env)
@@ -91,9 +92,9 @@
     if (length(select_cmds)) {
         # plot.data$X contains the gene names (as they are duplicated across plot.data, and cannot be in 'rownames'), hence the sub().
         select_cmds[["select"]] <- sub("rownames(plot.data)", "plot.data$X", select_cmds[["select"]], fixed=TRUE)
+        .populate_selection_environment(all_memory[[select_out$transmitter$Type]][select_out$transmitter$ID,], eval_env)
+        .text_eval(select_cmds, eval_env)
 
-        eval_env$all_brushes <- select_out$data
-        eval_env$all_lassos <- select_out$data
         if (param_choices[[.selectEffect]]==.selectTransTitle) {
             alpha_cmd <- ", alpha=SelectBy"
             alpha_legend_cmd <- "guides(alpha=FALSE) +"
@@ -102,8 +103,6 @@
             ## Add annotation bar
             orderBy <- c(orderBy, select_as_field)
         }
-
-        .text_eval(select_cmds, eval_env)
     }
 
     validate(need(
@@ -128,7 +127,7 @@
     bounds <- param_choices[[.zoomData]][[1]]
     if (!is.null(bounds)) {
         zoom_cmds <- sprintf("plot.data <- subset(plot.data, Y %%in%% rownames(value.mat)[c(%s)]); # zooming in",
-                             paste0(bounds, collapse = ","))
+                             paste0(bounds, collapse=","))
         .text_eval(zoom_cmds, eval_env)
     } else {
         zoom_cmds <- NULL
@@ -137,8 +136,8 @@
     # Heatmap. Get the colorbar separately to make it easier to guess the real
     # heatmap coordinates from a brush on the final combined plot
     plot_cmds <- c(
-        "p0 <- ggplot(plot.data, aes(x = X, y = Y)) +",
-        "geom_raster(aes(fill = value)) +",
+        "p0 <- ggplot(plot.data, aes(x=X, y=Y)) +",
+        "geom_raster(aes(fill=value)) +",
         "labs(x='', y='') +",
         .get_heatmap_fill_cmd(param_choices, colormap,
                               min(eval_env$plot.data$value, na.rm=TRUE),
@@ -161,31 +160,31 @@
         }
 
         annot_cmds[[paste0("OrderBy", i)]] <- c("",
-            sprintf("p%i <- ggplot(plot.data, aes(x = X, y = 1)) +", i) ,
-            sprintf("geom_raster(aes(fill = OrderBy%i%s)) +", i, alpha_cmd),
+            sprintf("p%i <- ggplot(plot.data, aes(x=X, y=1)) +", i) ,
+            sprintf("geom_raster(aes(fill=OrderBy%i%s)) +", i, alpha_cmd),
             "labs(x='', y='') +",
             alpha_legend_cmd,
             sprintf("scale_y_continuous(breaks=1, labels='%s') +", orderBy[i]),
             color_cmd,
             "theme(axis.text.x=element_blank(), axis.ticks=element_blank(), axis.title.x=element_blank(),
     rect=element_blank(), line=element_blank(), axis.title.y=element_blank(),
-    plot.margin = unit(c(0,0,-0.5,0), 'lines'));",
-            sprintf("legends[[%i]] <- cowplot::get_legend(p%i + theme(legend.position='bottom', plot.margin = unit(c(0,0,0,0), 'lines')));", i, i)
+    plot.margin=unit(c(0,0,-0.5,0), 'lines'));",
+            sprintf("legends[[%i]] <- cowplot::get_legend(p%i + theme(legend.position='bottom', plot.margin=unit(c(0,0,0,0), 'lines')));", i, i)
         )
     }
 
     if (select_as_field %in% orderBy) {
         i <- which(orderBy==select_as_field)
         annot_cmds[["SelectBy"]] <- c("",
-            sprintf("p%i <- ggplot(plot.data, aes(x = X, y = 1)) +", i),
-            "geom_raster(aes(fill = SelectBy)) +",
+            sprintf("p%i <- ggplot(plot.data, aes(x=X, y=1)) +", i),
+            "geom_raster(aes(fill=SelectBy)) +",
             "labs(x='', y='') +",
             "scale_y_continuous(breaks=1, labels='Selected points') +",
             sprintf("scale_fill_manual(values=c(`TRUE`='%s', `FALSE`='white')) +",param_choices[[.selectColor]]),
             "theme(axis.text.x=element_blank(), axis.ticks=element_blank(), axis.title.x=element_blank(),
       rect=element_blank(), line=element_blank(), axis.title.y=element_blank(),
-            plot.margin = unit(c(0,0,-0.5,0), 'lines'));",
-            sprintf("legends[[%i]] <- cowplot::get_legend(p%i + theme(legend.position='bottom', plot.margin = unit(c(0,0,0,0), 'lines')));", i, i))
+            plot.margin=unit(c(0,0,-0.5,0), 'lines'));",
+            sprintf("legends[[%i]] <- cowplot::get_legend(p%i + theme(legend.position='bottom', plot.margin=unit(c(0,0,0,0), 'lines')));", i, i))
     }
     annot_cmds <- unlist(annot_cmds)
 
@@ -202,9 +201,9 @@
       heatlegend, ncol=1, rel_heights=c(%s, %s))",
               paste0("p", c(seq_along(orderBy), 0),
                      c(rep(" + theme(legend.position='none')", length(orderBy)),
-                       " + theme(legend.position='none')"), collapse = ",\n        "),
+                       " + theme(legend.position='none')"), collapse=",\n        "),
               paste(c(rep(.heatMapRelHeightAnnot, length(orderBy)), .heatMapRelHeightHeatmap),
-                    collapse = ", "),
+                    collapse=", "),
               1-.heatMapRelHeightColorBar, .heatMapRelHeightColorBar)
     )
 
@@ -227,8 +226,8 @@
 #' @importFrom stats dist hclust as.dendrogram order.dendrogram
 .cluster_genes <- function(X) {
      if (is.null(dim(X)) || nrow(X) < 2L) {
-         showNotification("must have at least 2 features for clustering", type="error")
-         req(FALSE)
+         showNotification("must have at least 2 features for clustering", type="error") # nocov start
+         req(FALSE) # nocov end
      }
      D <- dist(X)
      hc <- hclust(D)
@@ -307,12 +306,12 @@
         col.vec <- assayColorMap(colormap, param_choices[[.heatMapAssay]], discrete=FALSE)(21L)
         col.add.before <- col.add.after <- break.add.before <- break.add.after <- ""
         if (param_choices[[.heatMapLower]] > min.obs && is.finite(param_choices[[.heatMapLower]])) {
-            col.add.before <- sprintf("c('%s',", col.vec[1])
-            break.add.before <- sprintf("c(%s,", min.obs)
+            col.add.before <- sprintf("c('%s', ", col.vec[1])
+            break.add.before <- sprintf("c(%s, ", min.obs)
         }
         if (param_choices[[.heatMapUpper]] < max.obs && is.finite(param_choices[[.heatMapUpper]])) {
-            col.add.after <- sprintf(",'%s')", col.vec[length(col.vec)])
-            break.add.after <- sprintf(",%s)", max.obs)
+            col.add.after <- sprintf(", '%s')", col.vec[length(col.vec)])
+            break.add.after <- sprintf(", %s)", max.obs)
         }
         if (col.add.before=="" && col.add.after != "") col.add.before <- "c("
         if (break.add.before=="" && break.add.after != "") break.add.before <- "c("
@@ -326,8 +325,8 @@
                             param_choices[[.heatMapAssay]],
                             col.add.after,
                             paste0("scales::rescale(", break.add.before,
-                                   "seq(", min(break.vec), ",", max(break.vec), ",length.out=21L)",
-                                   break.add.after, ", to=c(0,1), from=c(", paste0(limits, collapse=","), "))"),
+                                   "seq(", min(break.vec), ", ", max(break.vec), ", length.out=21L)",
+                                   break.add.after, ", to=c(0, 1), from=c(", paste0(limits, collapse=", "), "))"),
                             paste0(limits, collapse=","))
     }
     fill_cmd

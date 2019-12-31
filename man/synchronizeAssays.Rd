@@ -85,11 +85,9 @@ ecm <- ExperimentColorMap(
 # Example SingleCellExperiment ----
 
 library(scRNAseq)
-data(allen)
+sce <- ReprocessedAllenData(assays="tophat_counts")
 library(scater)
-sce <- as(allen, "SingleCellExperiment")
-counts(sce) <- assay(sce, "tophat_counts")
-sce <- normalize(sce)
+sce <- logNormCounts(sce, exprs_values="tophat_counts")
 sce <- runPCA(sce)
 sce <- runTSNE(sce)
 

@@ -1,3 +1,4 @@
+context("iSEE-extras")
 
 stopifnot(
   require(shiny)
@@ -73,8 +74,6 @@ test_that(".sanitize_SE_input returns expected commands and object", {
     colData(sce)$nested <- DataFrame(nested=seq_len(ncol(sce)))
     rowData(sce)$nested <- DataFrame(nested=seq_len(nrow(sce)))
     sizeFactors(sce) <- runif(ncol(sce))
-    sizeFactors(sce, "ERCC") <- runif(ncol(sce))
-    isSpike(sce, "ERCC") <- sample(nrow(sce), 10)
 
     sanitized_list <- iSEE:::.sanitize_SE_input(sce)
     sanitized_cmds <- sanitized_list$cmds
@@ -84,8 +83,6 @@ test_that(".sanitize_SE_input returns expected commands and object", {
     expect_identical(colData(sanitized_sce)[["nested:nested"]], sce$nested$nested)
     expect_identical(rowData(sanitized_sce)[["nested:nested"]], rowData(sce)$nested$nested)
     expect_identical(colData(sanitized_sce)[["sizeFactors(se)"]], sizeFactors(sce))
-    expect_identical(colData(sanitized_sce)[['sizeFactors(se, "ERCC")']], sizeFactors(sce, "ERCC"))
-    expect_identical(rowData(sanitized_sce)[['isSpike(se, "ERCC")']], isSpike(sce, "ERCC"))
 
     # emulate the function behaviour to obtain the expected
     eval_env <- new.env()
@@ -124,6 +121,38 @@ test_that(".setup_initial throws an error if Name column is missing", {
         "need 'Name' field in 'initialPanels'",
         fixed=TRUE
     )
+
+})
+
+test_that(".setup_initial does not allow duplicated values in the Name column", {
+
+    initialPanels <- DataFrame(Name=rep("Dummy", 2))
+    all_memory <- list()
+
+    expect_error(
+        iSEE:::.setup_initial(initialPanels, all_memory),
+        "duplicated values are not allowed in the 'Name' field of 'initialPanels'",
+        fixed=TRUE
+    )
+
+})
+
+test_that(".setup_initial supports 0-row initialPanels", {
+
+    initialPanels <- data.frame(Name=character(0))
+    all_memory <- list()
+
+    out <- iSEE:::.setup_initial(initialPanels, all_memory)
+
+    expected <- data.frame(
+      Type = character(0),
+      ID = integer(0),
+      Width = integer(0),
+      Height = integer(0),
+      stringsAsFactors = FALSE
+    )
+
+    expect_identical(out, expected)
 
 })
 
@@ -228,8 +257,8 @@ test_that("Nameless SummarizedExperiment objects can be sanitized", {
             "se <- as(se, \"SingleCellExperiment\")",
             "colnames(se) <- sprintf(\"SAMPLE_%i\", seq_len(ncol(se)))",
             "rownames(se) <- sprintf(\"FEATURE_%i\", seq_len(nrow(se)))",
-            "colData(se)[,\"nested:nested1\"] <- colData(se)[[\"nested\"]][[\"nested1\"]]",
-            "colData(se)[,\"nested:nested2\"] <- colData(se)[[\"nested\"]][[\"nested2\"]]"))
+            "colData(se)[, \"nested:nested1\"] <- colData(se)[[\"nested\"]][[\"nested1\"]]",
+            "colData(se)[, \"nested:nested2\"] <- colData(se)[[\"nested\"]][[\"nested2\"]]"))
 
 })
 
@@ -283,6 +312,22 @@ test_that(".get_selected_points works", {
     expectedOut <- (rownames(all_coordinates[["redDimPlot1"]]) %in% expectedNames)
     expect_identical(out, expectedOut)
 
+    # A history of selection exists in the transmitter panel and "select_all" is TRUE
+    all_memory$colDataPlot[[iSEE:::.multiSelectHistory]][[1]] <- list(list(
+        xmin=0.9, xmax=1.1, ymin=2E7, ymax=4E7,
+        direction="xy", mapping=list(x="X", y="Y"),
+        brushId="dummy_brush", outputId="dummy_plot"
+    ))
+    out <- iSEE:::.get_selected_points(
+        names = rownames(all_coordinates[["redDimPlot1"]]),
+        transmitter = "Column data plot 1",
+        all_memory, all_coordinates, select_all = TRUE
+    )
+    expect_named(out, c("active", "saved"))
+    expect_type(out$active, "logical")
+    expect_length(out$saved, 1L)
+    expect_type(out$active[[1]], "logical")
+
 })
 
 test_that(".regenerate_unselected_plot can regenerate plots manually", {
@@ -296,8 +341,33 @@ test_that(".regenerate_unselected_plot can regenerate plots manually", {
     input <- list()
     session <- NULL
 
-    iSEE:::.regenerate_unselected_plot("redDimPlot", 1, pObjects, rObjects, input, session)
+    iSEE:::.regenerate_unselected_plot("redDimPlot", 1, pObjects, rObjects)
 
     expect_identical(rObjects[["redDimPlot1"]], 2L)
+
+})
+
+test_that(".regenerate_unselected_plot can destroy brushes, lassos, and selection history", {
+
+    # Add dummy active and saved selections
+    all_memory$redDimPlot[[iSEE:::.brushData]][[1]] <- list(a=1, b=2)
+    all_memory$redDimPlot[[iSEE:::.multiSelectHistory]][[1]] <- list(list(a=1, b=2))
+
+    pObjects <- new.env()
+    pObjects$memory <- all_memory
+
+    rObjects <- new.env()
+    rObjects[["redDimPlot1"]] <- 1L
+    rObjects[["redDimPlot1_reactivated"]] <- 1L
+    rObjects[["redDimPlot1_resaved"]] <- 1L
+
+    input <- list()
+    # session <- NULL
+
+    iSEE:::.regenerate_unselected_plot("redDimPlot", 1, pObjects, rObjects)
+
+    expect_identical(rObjects[["redDimPlot1"]], 2L)
+    expect_identical(rObjects[["redDimPlot1_reactivated"]], 2L)
+    expect_identical(rObjects[["redDimPlot1_resaved"]], 2L)
 
 })
