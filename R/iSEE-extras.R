@@ -215,6 +215,8 @@
     all_args$featAssayPlot <- .name2index(all_args$featAssayPlot, .featAssayAssay, assayNames(se))
 
     all_args$rowStatTable <- .name2index(all_args$rowStatTable, .statTableSelected, rownames(se))
+    
+    all_args$customStatTable <- .name2index(all_args$customStatTable, .statTableSelected, rownames(se))
 
     all_args$sampAssayPlot <- .name2index(all_args$sampAssayPlot, c(.sampAssayYAxisSampName, .sampAssayXAxisSampName), colnames(se))
     all_args$sampAssayPlot <- .name2index(all_args$sampAssayPlot, .sampAssayAssay, assayNames(se))
@@ -444,7 +446,7 @@ height_limits <- c(400L, 1000L)
 
     # Checking for selecting/linking of main panels.
     for (mode in c(point_plot_types, linked_table_types)) {
-        if (mode %in% c("rowDataPlot", "sampAssayPlot", "rowStatTable")) {
+        if (mode %in% c("rowDataPlot", "sampAssayPlot", "rowStatTable", "customStatTable")) {
             selectable <- row_selectable
         } else {
             selectable <- col_selectable
@@ -648,7 +650,7 @@ height_limits <- c(400L, 1000L)
     }
 
     transmittees <- list(c("yaxis", "y-axis", NA, NA))
-    if (enc$Type == "rowStatTable") {
+    if (enc$Type %in% c("rowStatTable", "customStatTable")) {
         transmittees <- c(transmittees,
                 list(
                     c("xaxis", "x-axis", .featAssayXAxis, .featAssayXAxisFeatNameTitle),

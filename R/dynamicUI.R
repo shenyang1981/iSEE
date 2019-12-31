@@ -233,15 +233,30 @@
                         choices=tab_by_row, selected=param_choices[[.featAssayXAxisRowTable]]))
             )
         } else if (mode == "rowStatTable") {
-            obj <- tagList(dataTableOutput(panel_name), uiOutput(.input_FUN("annotation")))
+            obj <- tagList(
+              dataTableOutput(panel_name), 
+              shinyjs::hidden(
+                downloadButton(.input_FUN("download"), "Download")  
+              ),
+              uiOutput(.input_FUN("annotation")))
         } else if (mode == "colStatTable") {
-            obj <- dataTableOutput(panel_name)
+            obj <- tagList(
+              dataTableOutput(panel_name),
+              shinyjs::hidden(
+                downloadButton(.input_FUN("download"), "Download")  
+              )
+            )
         } else if (mode == "customStatTable" || mode == "customDataPlot") {
             if (mode == "customDataPlot") {
                 obj <- plotOutput(panel_name, height=panel_height)
                 fun_choices <- custom_data_funnames
             } else {
-                obj <- dataTableOutput(panel_name)
+                obj <- tagList(
+                  dataTableOutput(panel_name),
+                  shinyjs::hidden(
+                    downloadButton(.input_FUN("download"), "Download")  
+                  )
+                )
                 fun_choices <- custom_stat_funnames
             }
             argsUpToDate <- param_choices[[.customArgs]] == param_choices[[.customVisibleArgs]]
@@ -255,10 +270,16 @@
                 selectInput(
                     .input_FUN(.customFun), label="Custom function:",
                     choices=fun_choices, selected=param_choices[[.customFun]]),
-                textAreaInput(
-                    .input_FUN(.customVisibleArgs), label="Custom arguments:", rows=5,
-                    value=param_choices[[.customVisibleArgs]]),
-                actionButton(.input_FUN(.customSubmit), button_label)
+                fluidRow(column(12,  tags$b("Custom arguments:"))), 
+                splitLayout(
+                  cellWidths = c("60%", "40%"),
+                  textAreaInput(
+                    .input_FUN(.customVisibleArgs), label=NULL, rows=1,
+                    value=param_choices[[.customVisibleArgs]]
+                  ),
+                  actionButton(.input_FUN(.customSubmit), button_label)
+                ),
+                uiOutput(.input_FUN(.customContainer))
             )
         } else if (mode == "rowDataPlot") {
             obj <- plotOutput(panel_name, brush=brush.opts, dblclick=dblclick, click=clickopt, height=panel_height)
@@ -373,7 +394,7 @@
 
         # Adding graphical parameters if we're plotting.
         if (mode %in% linked_table_types) {
-            if (mode %in% "rowStatTable") {
+            if (mode %in% c("rowStatTable", "customStatTable")) {
                 source_type <- "row"
                 selectable <- row_selectable
             } else  {
@@ -488,7 +509,7 @@
 .define_link_sources <- function(active_panels) {
     all_names <- .decode_panel_name(active_panels$Type, active_panels$ID)
     list(
-        row_tab=all_names[active_panels$Type == "rowStatTable"],
+        row_tab=all_names[active_panels$Type %in% c("rowStatTable", "customStatTable")],
         col_tab=all_names[active_panels$Type == "colStatTable"],
         row_plot=all_names[active_panels$Type %in% row_point_plot_types],
         col_plot=all_names[active_panels$Type %in% col_point_plot_types]

@@ -687,6 +687,14 @@ customStatTableDefaults <- function(se, number) {
 
     out <- new("DataFrame", nrows=as.integer(number))
     out <- .add_custom_panel_parameters(out)
+    
+    # support selection transmission
+    out[[.rowStatSelected]] <- 1L
+    
+    # to be compatiable with rowStatTable
+    out[[.selectParamBoxOpen]] <- FALSE
+    out[[.selectByPlot]] <- .noSelection
+    
     out[[.customStatSearch]] <- ""
 
     if (waszero) out <- out[0, , drop=FALSE]
