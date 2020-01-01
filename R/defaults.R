@@ -690,15 +690,29 @@ customStatTableDefaults <- function(se, number) {
     
     # support selection transmission
     out[[.rowStatSelected]] <- 1L
+    out[[.rowStatSearch]] <- ""
     
     # to be compatiable with rowStatTable
     out[[.selectParamBoxOpen]] <- FALSE
     out[[.selectByPlot]] <- .noSelection
     
+    colsearch <- character(0)
+    if (!waszero) colsearch <- character(ncol(rowData(se)))
+    out[[.rowStatColSearch]] <- rep(list(colsearch), as.integer(number))
+    
+    # Defining the rowDataPlot from which point selections are received.
+    out[[.selectParamBoxOpen]] <- FALSE
+    out[[.selectByPlot]] <- .noSelection
+    out[[.selectMultiType]] <- .selectMultiActiveTitle
+    out[[.selectMultiSaved]] <- 0L
+    
+    
     out[[.customStatSearch]] <- ""
 
     if (waszero) out <- out[0, , drop=FALSE]
     return(out)
+    
+    
 }
 
 #' Row data plot defaults

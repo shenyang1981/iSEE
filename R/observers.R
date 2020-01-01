@@ -1781,6 +1781,7 @@
                 rows = NULL,
                 columns = NULL
             )
+            
             output[[paste0(panel_name, "_" , .customContainer)]] = renderUI({
             # output[[panel_name]] <- renderDataTable({
                 force(rObjects$active_panels) # to trigger recreation when the number of plots is changed.
@@ -1874,7 +1875,6 @@
     names(feature_choices) <- rownames(se)
     sample_choices <- seq_len(ncol(se))
     names(sample_choices) <- colnames(se)
-
     # Setting up inputs for DT::datatable something to play with.
     feature_data <- data.frame(rowData(se), check.names=FALSE)
     rownames(feature_data) <- rownames(se)
@@ -1890,10 +1890,9 @@
     }
     sample_data_select_col <- .safe_field_name("Selected", colnames(sample_data))
 
-    for (mode in linked_table_types) {
+    for (mode in c(linked_table_types, "customStatTable")) {
         max_plots <- nrow(pObjects$memory[[mode]])
         if (mode %in% c("rowStatTable", "customStatTable")) {
-            browser()
             current_df <- feature_data
             current_select_col <- feature_data_select_col
             choices <- feature_choices
@@ -1922,8 +1921,8 @@
                 x_field0 <- x_field
                 y_field0 <- y_field
                 choices0 <- choices
-
-                output[[panel_name]] <- renderDataTable({
+                if(mode0 != "customStatTable"){
+                    output[[panel_name]] <- renderDataTable({
                     force(rObjects$active_panels) # to trigger recreation when the number of plots is changed.
                     force(rObjects[[panel_name]])
 
@@ -1971,7 +1970,7 @@
                             scrollX=TRUE),
                         selection=list(mode="single", selected=chosen))
                 })
-
+                }
                 # Updating memory for new selection parameters (no need for underscore
                 # in 'select_field' definition, as this is already in the '.int' constant).
                 select_field <- paste0(panel_name, .int_statTableSelected)
