@@ -24,7 +24,7 @@
 .spawn_table_links <- function(memory) {
     all_linked_tabs <- c(
       sprintf("rowStatTable%i", seq_len(nrow(memory$rowStatTable))),
-      sprintf("customStatTable%i", seq_len(nrow(memory$rowStatTable))),
+      sprintf("customStatTable%i", seq_len(nrow(memory$customStatTable))),
       sprintf("colStatTable%i", seq_len(nrow(memory$colStatTable))))
     table_links <- rep(list(list(color=character(0), xaxis=character(0), yaxis=character(0))), length(all_linked_tabs))
     names(table_links) <- all_linked_tabs
@@ -104,7 +104,7 @@
     all_kids <- links[[tab]]
 
     # Deciding which fields to cancel.
-    if (.split_encoded(tab)$Type=="rowStatTable") {
+    if (.split_encoded(tab)$Type %in% c("rowStatTable", "customStatTable")) {
         col_field <- .colorByRowTable
         assay_panel_type <- "featAssayPlot"
         x_field <- .featAssayXAxisRowTable

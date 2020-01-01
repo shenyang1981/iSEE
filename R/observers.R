@@ -307,6 +307,7 @@
 #' @rdname INTERNAL_selection_parameter_observers
 .selection_parameter_observers <- function(input, session, pObjects, rObjects) {
     # Selection choice observer; applicable to all non-custom panels.
+    
     for (mode in c(point_plot_types, linked_table_types, "heatMapPlot")) {
         max_panels <- nrow(pObjects$memory[[mode]])
 
@@ -1758,12 +1759,30 @@
     }
 
     # Defining the custom tables.
+    pointsSelected <- list(); # reactiveValue of points selected for every custom panel
+    hasBeenIntiated <- list(); # only initiate custom UI + server logic once, in case multiple observeEvents might be generated
     for (id in seq_len(nrow(pObjects$memory$customStatTable))) {
         local({
             id0 <- id
             panel_name <- paste0("customStatTable", id0)
-
-            output[[panel_name]] <- renderDataTable({
+            # mode0 <- mode
+            # current_df0 <- current_df
+            # current_select_col0 <- current_select_col
+            # 
+            # col_field0 <- col_field
+            # x_field0 <- x_field
+            # y_field0 <- y_field
+            # choices0 <- choices
+            
+            # Update function specific UI
+            selectedFun <- paste0(panel_name, "_", .customFun);
+            
+            pointsSelected[[panel_name]] <- reactiveValues(
+                rows = NULL,
+                columns = NULL
+            )
+            output[[paste0(panel_name, "_" , .customContainer)]] = renderUI({
+            # output[[panel_name]] <- renderDataTable({
                 force(rObjects$active_panels) # to trigger recreation when the number of plots is changed.
                 force(rObjects[[panel_name]])
                 param_choices <- pObjects$memory$customStatTable[id0,]
@@ -1797,13 +1816,23 @@
                 row_selected <- eval_env$row.names
                 col_selected <- eval_env$col.names
 
-                chosen_args <- param_choices[[.customArgs]]
-                FUN <- .get_internal_info(se, "custom_stat_fun")[[chosen_fun]]
-                tmp_df <- do.call(FUN, c(list(se, row_selected, col_selected), as.list(.text2args(chosen_args))))
-
-                search <- param_choices[[.customStatSearch]]
-                datatable(tmp_df, filter="top", rownames=TRUE,
-                    options=list(search=list(search=search, smart=FALSE, regex=TRUE, caseInsensitive=FALSE), scrollX=TRUE))
+                # register custom function (with its UI) to be initiated
+                FUN <- input[[selectedFun]]
+                FUNID <- paste0(panel_name, "_", FUN)
+                onlyUI <- !is.null(hasBeenIntiated[[FUNID]]);
+                hasBeenIntiated[[FUNID]] <<- 1;
+                
+                CONTAINER_FUN <- .get_internal_info(se, "custom_stat_fun")[[FUN]]$UI
+                COMPUTATION_FUN <- .get_internal_info(se, "custom_stat_fun")[[FUN]]$computation
+                CACHES_ENV <- .get_internal_info(se, "custom_stat_fun")[[FUN]]$caches
+                # initiate container by updating function specific UI in custom container slot defined in custom UI panel
+                # the way of updating datatable slot would be defined in custom container function
+                pointsSelected[[panel_name]]$rows = row_selected
+                pointsSelected[[panel_name]]$columns = col_selected
+                do.call(
+                    CONTAINER_FUN,
+                    c(list(se, pointsSelected[[panel_name]], session, input, output, panel_name, FUN, COMPUTATION_FUN, CACHES_ENV, UIonly = onlyUI))
+                )
             })
 
             # Updating memory for new selection parameters.
@@ -1863,7 +1892,8 @@
 
     for (mode in linked_table_types) {
         max_plots <- nrow(pObjects$memory[[mode]])
-        if (mode == "rowStatTable") {
+        if (mode %in% c("rowStatTable", "customStatTable")) {
+            browser()
             current_df <- feature_data
             current_select_col <- feature_data_select_col
             choices <- feature_choices
